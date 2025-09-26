@@ -1,0 +1,17 @@
+# Python Virtual Environment
+# Ignore the entire virtual environment folder (venv)
+venv/
+*.pyc
+
+# npm Packages and Tools (Frontend)
+# Ignore the folder where npm installs all frontend dependencies
+node_modules/
+
+# Environment Variables and Configuration Files
+# CRUCIAL: Keep secrets and database credentials out of Git
+.env
+
+# Logs and Cache
+# Cache folders that Python creates to speed up execution. They are temporary and unnecessary in the repository.
+*.log
+__pycache__/
