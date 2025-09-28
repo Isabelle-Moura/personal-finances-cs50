@@ -11,7 +11,7 @@
     "concurrently": "^8.2.2"
   },
   "scripts": {
-    "activate-venv": "echo To ENABLE the virtual environment, use one of the commands bellow: && echo ------------------------------------------------------- && echo At Git Bash/Linux/Mac: source venv/Scripts/activate && echo At Windowss CMD: venv\\Scripts\\activate && echo -------------------------------------------------------",
+    "activate-venv": "echo To ENABLE the virtual environment, use one of the commands bellow: && echo ------------------------------------------------------- && echo At Git Bash/Linux/Mac: source venv/Scripts/activate && echo At Windows's CMD: venv\\Scripts\\activate && echo -------------------------------------------------------",
     "start": "echo WARNING ❗ Ensure that the virtual environment (venv) is ENABLED before running this command. && python run.py"
   }
   }
