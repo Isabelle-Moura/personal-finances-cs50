@@ -1,3 +1,12 @@
+# 🌐 Language / Idioma
+
+Como este projeto é destinado a um público global, procurei tornar a documentação acessível. Temos esse arquivo aqui, em português, para o público que fala esse idioma. O arquivo principal está inteiramente em inglês.
+
+**🇧🇷 Português:** Este é o arquivo secundário da documentação.
+**🇺🇸 English:** This project has a complete documentation in English. Click [here](README.md) to access the `README.md`.
+
+---
+
 # Configuração do Ambiente de Desenvolvimento
 
 Para garantir a portabilidade e evitar conflitos de dependência, este projeto utiliza um ambiente virtual em Python. Siga os passos abaixo para configurar seu ambiente de desenvolvimento.

@@ -1,3 +1,12 @@
+# 🌐 Language / Idioma
+
+As this project is intended for a global audience, I've strive for documentation accessibility. The primary file is in English, but a complete localized version is available for Portuguese speakers.
+
+**🇺🇸 English:** This is the main documentation file.  
+**🇧🇷 Português:** Este projeto possui documentação completa em português. Clique [aqui](README_pt-br.md) para acessar o `README_pt-br.md`.
+
+---
+
 # Development Environment Setup
 
 To ensure portability and avoid dependency conflicts, this project uses a Python virtual environment. Follow the steps below to set up your development environment.
