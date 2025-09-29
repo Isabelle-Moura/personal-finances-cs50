@@ -12,21 +12,21 @@ python -m venv venv
 
 Then activate it with the appropriate command for your operating system:
 
-#### For macOS/Linux:
+**For macOS/Linux:**
 
 ```json
 source venv/bin/activate
 ```
 
-#### For Windows
+**For Windows:**
 
-- **Command Prompt:**
+----> **Command Prompt:**
 
 ```json
 venv\Scripts\activate
 ```
 
-- **PowerShell:**
+----> **PowerShell:**
 
 ```json
 .\venv\Scripts\activate
