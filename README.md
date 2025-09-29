@@ -7,7 +7,7 @@ As this project is intended for a global audience, I've strive for documentation
 
 ---
 
-# Development Environment Setup
+# 💻 Development Environment Setup
 
 To ensure portability and avoid dependency conflicts, this project uses a Python virtual environment. Follow the steps below to set up your development environment.
 

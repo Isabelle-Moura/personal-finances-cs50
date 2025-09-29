@@ -7,7 +7,7 @@ Como este projeto é destinado a um público global, procurei tornar a documenta
 
 ---
 
-# Configuração do Ambiente de Desenvolvimento
+# 💻 Configuração do Ambiente de Desenvolvimento
 
 Para garantir a portabilidade e evitar conflitos de dependência, este projeto utiliza um ambiente virtual em Python. Siga os passos abaixo para configurar seu ambiente de desenvolvimento.
 
