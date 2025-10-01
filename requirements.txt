@@ -3,3 +3,6 @@ Flask-SQLAlchemy
 psycopg2-binary
 Flask-Login
 python-dotenv
+Flask-WTF
+Flask-Bcrypt
+email_validator
