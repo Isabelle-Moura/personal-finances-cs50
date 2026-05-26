@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, url_for, flash, redirect
-from app.forms import RegistrationForm, LoginForm
+from app.forms import RegistrationForm, LoginForm, TransactionForm
 from app import db 
-from app.models import User
+from app.models import Category, Transaction, User
 from flask_bcrypt import Bcrypt 
 from flask_login import login_user, logout_user, current_user, login_required
 
@@ -47,7 +47,7 @@ def register():
 
 
 
-# [PAREI] - Tela de login não funciona. Ver o pq.
+# [PAREI] - Tela de login não funciona. Ver o pq!!!
 
 
 
@@ -90,7 +90,56 @@ def logout():
     return redirect(url_for('main.home'))
 
 
-@main.route('/dashboard')
+@main.route('/dashboard', methods=['GET', 'POST'])
 @login_required
 def dashboard():
-    return render_template('dashboard.html', title='Dashboard', user=current_user)
+    form = TransactionForm()
+    
+    # 1. Handle form submission to add a new transaction
+    if form.validate_on_submit():
+        # First, find or create the category in the database for this user
+        category_name = form.category.data
+        category = Category.query.filter_by(name=category_name, user_id=current_user.id).first()
+        
+        if not category:
+            category = Category(name=category_name, type=form.type.data, user_id=current_user.id)
+            db.session.add(category)
+            db.session.commit()
+
+        # Create the transaction object
+        # Convert amount to float for the database structure
+        transaction = Transaction(
+            amount=float(form.amount.data),
+            description=form.description.data,
+            user_id=current_user.id,
+            category_id=category.id
+        )
+        
+        db.session.add(transaction)
+        db.session.commit()
+        flash('Transaction added successfully!', 'success')
+        return redirect(url_for('main.dashboard'))
+
+    # 2. Query all transactions belonging to the current user
+    user_transactions = Transaction.query.filter_by(user_id=current_user.id).order_by(Transaction.date.desc()).all()
+    
+    # 3. Calculate metrics (Incomes, Expenses, Balance)
+    total_income = 0.0
+    total_expense = 0.0
+    
+    for t in user_transactions:
+        if t.category and t.category.type == 'income':
+            total_income += t.amount
+        else:
+            total_expense += t.amount
+            
+    total_balance = total_income - total_expense
+
+    return render_template('dashboard.html', 
+                           title='Dashboard', 
+                           user=current_user, 
+                           form=form, 
+                           transactions=user_transactions,
+                           income=total_income,
+                           expense=total_expense,
+                           balance=total_balance)

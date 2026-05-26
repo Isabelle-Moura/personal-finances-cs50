@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField, SubmitField, SelectField, DecimalField, TextAreaField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from app.models import User
 
@@ -27,3 +27,13 @@ class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Login')
+
+# Add SelectField, DecimalField, and TextAreaField to your wtforms imports at the top:
+
+class TransactionForm(FlaskForm):
+    amount = DecimalField('Amount ($)', validators=[DataRequired()])
+    description = StringField('Description', validators=[Length(max=200)])
+    type = SelectField('Type', choices=[('income', 'Income'), ('expense', 'Expense')], validators=[DataRequired()])
+    # For now, we will use a couple of hardcoded default categories to keep it simple
+    category = SelectField('Category', choices=[('Salary', 'Salary'), ('Food', 'Food'), ('Rent', 'Rent'), ('Utilities', 'Utilities'), ('Other', 'Other')], validators=[DataRequired()])
+    submit = SubmitField('Add Transaction')
