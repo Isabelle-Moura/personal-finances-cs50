@@ -1,1 +1,81 @@
-<!-- PARAMOS AQUI!!!!!!! VAMOS CRIAR AS TELAS DE BUDGETS E TRANSACTIONS -->
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-12 d-flex justify-content-between align-items-center">
+            <h2>Monthly Budgets 🎯</h2>
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-primary">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card p-3 shadow-sm border-0 bg-light">
+                <h4>Set Spending Limit</h4>
+                <form method="POST" action="">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="form-group mb-2">
+                        {{ form.category.label(class="form-control-label") }}
+                        {{ form.category(class="form-select") }}
+                    </div>
+                    
+                    <div class="form-group mb-2">
+                        {{ form.amount.label(class="form-control-label") }}
+                        {{ form.amount(class="form-control", placeholder="0.00") }}
+                    </div>
+
+                    <div class="form-group mb-2">
+                        {{ form.start_date.label(class="form-control-label") }}
+                        {{ form.start_date(class="form-control", type="date") }}
+                    </div>
+
+                    <div class="form-group mb-3">
+                        {{ form.end_date.label(class="form-control-label") }}
+                        {{ form.end_date(class="form-control", type="date") }}
+                    </div>
+                    
+                    {{ form.submit(class="btn btn-success w-100") }}
+                </form>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card p-3 shadow-sm border-0">
+                <h4>Active Limits Tracking</h4>
+                
+                {% if budget_reports %}
+                    {% for report in budget_reports %}
+                        <div class="mb-4 mt-3">
+                            <div class="d-flex justify-content-between font-weight-bold mb-1">
+                                <span><strong>{{ report.category_name }}</strong></span>
+                                <span class="text-muted">
+                                    $ {{ "%.2f"|format(report.spent) }} / $ {{ "%.2f"|format(report.budget.amount) }}
+                                </span>
+                            </div>
+                            
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar {% if report.percentage >= 90 %}bg-danger{% elif report.percentage >= 70 %}bg-warning{% else %}bg-info{% endif %}" 
+                                     role="progressbar" 
+                                     style="width: {{ report.percentage }}%;" 
+                                     aria-valuenow="{{ report.percentage }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                    {{ "%.0f"|format(report.percentage) }}%
+                                </div>
+                            </div>
+                            
+                            <small class="text-muted">
+                                Period: {{ report.budget.start_date.strftime('%Y-%m-%d') }} to {{ report.budget.end_date.strftime('%Y-%m-%d') }} 
+                                (Remaining: <span class="{{ 'text-danger' if report.remaining < 0 else 'text-success' }}">$ {{ "%.2f"|format(report.remaining) }}</span>)
+                            </small>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted mt-3">No active budget limits set. Keep your spending under control by adding one!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

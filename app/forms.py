@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, SelectField, DecimalField, TextAreaField
+from wtforms import DateField, StringField, PasswordField, SubmitField, SelectField, DecimalField, TextAreaField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from app.models import User
 
@@ -34,6 +34,12 @@ class TransactionForm(FlaskForm):
     amount = DecimalField('Amount ($)', validators=[DataRequired()])
     description = StringField('Description', validators=[Length(max=200)])
     type = SelectField('Type', choices=[('income', 'Income'), ('expense', 'Expense')], validators=[DataRequired()])
-    # For now, we will use a couple of hardcoded default categories to keep it simple
     category = SelectField('Category', choices=[('Salary', 'Salary'), ('Food', 'Food'), ('Rent', 'Rent'), ('Utilities', 'Utilities'), ('Other', 'Other')], validators=[DataRequired()])
     submit = SubmitField('Add Transaction')
+
+class BudgetForm(FlaskForm):
+    category = SelectField('Category', choices=[('Food', 'Food'), ('Rent', 'Rent'), ('Utilities', 'Utilities'), ('Other', 'Other')], validators=[DataRequired()])
+    amount = DecimalField('Budget Limit ($)', validators=[DataRequired()])
+    start_date = DateField('Start Date', validators=[DataRequired()])
+    end_date = DateField('End Date', validators=[DataRequired()])
+    submit = SubmitField('Set Budget')
