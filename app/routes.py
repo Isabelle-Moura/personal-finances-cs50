@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, url_for, flash, redirect
+from flask import Blueprint, render_template, request, url_for, flash, redirect
 from app.forms import RegistrationForm, LoginForm, TransactionForm, BudgetForm
 from app import db 
 from app.models import Category, Transaction, User, Budget
@@ -40,6 +40,8 @@ def register():
         
     return render_template('register.html', title='Register', form=form)
 
+
+
 @main.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -73,38 +75,19 @@ def logout():
     return redirect(url_for('main.home'))
 
 
-@main.route('/dashboard', methods=['GET', 'POST'])
+@main.route('/dashboard', methods=['GET'])
 @login_required
 def dashboard():
-    form = TransactionForm()
+    recent_transactions = Transaction.query.filter_by(user_id=current_user.id)\
+                                           .order_by(Transaction.date.desc())\
+                                           .limit(5).all()
     
-    if form.validate_on_submit():
-        category_name = form.category.data
-        category = Category.query.filter_by(name=category_name, user_id=current_user.id).first()
-        
-        if not category:
-            category = Category(name=category_name, type=form.type.data, user_id=current_user.id)
-            db.session.add(category)
-            db.session.commit()
-
-        transaction = Transaction(
-            amount=float(form.amount.data),
-            description=form.description.data,
-            user_id=current_user.id,
-            category_id=category.id
-        )
-        
-        db.session.add(transaction)
-        db.session.commit()
-        flash('Transaction added successfully!', 'success')
-        return redirect(url_for('main.dashboard'))
-
-    user_transactions = Transaction.query.filter_by(user_id=current_user.id).order_by(Transaction.date.desc()).all()
+    all_transactions = Transaction.query.filter_by(user_id=current_user.id).all()
     
     total_income = 0.0
     total_expense = 0.0
     
-    for t in user_transactions:
+    for t in all_transactions:
         if t.category and t.category.type == 'income':
             total_income += t.amount
         else:
@@ -112,14 +95,38 @@ def dashboard():
             
     total_balance = total_income - total_expense
 
+    user_budgets = Budget.query.filter_by(user_id=current_user.id).all()
+    critical_budgets = []
+    
+    for b in user_budgets:
+        current_category = Category.query.get(b.category_id)
+        category_name = current_category.name if current_category else "Unknown"
+        
+        total_spent = db.session.query(db.func.sum(Transaction.amount)).filter(
+            Transaction.user_id == current_user.id,
+            Transaction.category_id == b.category_id,
+            Transaction.date >= b.start_date,
+            Transaction.date <= b.end_date
+        ).scalar() or 0.0
+        
+        percentage = (total_spent / b.amount) * 100 if b.amount > 0 else 0
+        
+        if percentage >= 80:
+            critical_budgets.append({
+                'category_name': category_name,
+                'percentage': min(percentage, 100),
+                'remaining': b.amount - total_spent
+            })
+
     return render_template('dashboard.html', 
                            title='Dashboard', 
                            user=current_user, 
-                           form=form, 
-                           transactions=user_transactions,
+                           transactions=recent_transactions, 
                            income=total_income,
                            expense=total_expense,
-                           balance=total_balance)
+                           balance=total_balance,
+                           alerts=critical_budgets) 
+
 
 @main.route('/budgets', methods=['GET', 'POST'])
 @login_required
@@ -172,12 +179,18 @@ def budgets():
 
     return render_template('budgets.html', title='Budgets', form=form, budget_reports=budget_reports)
 
+
+
 @main.route('/transactions', methods=['GET', 'POST'])
 @login_required
 def transactions():
     form = TransactionForm()
     
     if form.validate_on_submit():
+        if float(form.amount.data) > 1000000:
+            flash('Transaction blocked! Value exceeds the maximum fraud prevention limit.', 'danger')
+            return redirect(url_for('main.transactions'))
+        
         category_name = form.category.data
         category = Category.query.filter_by(name=category_name, user_id=current_user.id).first()
         
@@ -198,9 +211,24 @@ def transactions():
         flash('Transaction added successfully!', 'success')
         return redirect(url_for('main.transactions'))
 
-    user_transactions = Transaction.query.filter_by(user_id=current_user.id).order_by(Transaction.date.desc()).all()
+    transaction_filter = request.args.get('filter', 'all')
     
-    return render_template('transactions.html', title='Transactions', form=form, transactions=user_transactions)
+    query = Transaction.query.filter_by(user_id=current_user.id)
+    
+    if transaction_filter == 'income':
+        user_transactions = query.join(Category).filter(Category.type == 'income').order_by(Transaction.date.desc()).all()
+    elif transaction_filter == 'expense':
+        user_transactions = query.join(Category).filter(Category.type == 'expense').order_by(Transaction.date.desc()).all()
+    else:
+        user_transactions = query.order_by(Transaction.date.desc()).all()
+    
+    return render_template('transactions.html', 
+                           title='Transactions', 
+                           form=form, 
+                           transactions=user_transactions, 
+                           current_filter=transaction_filter)
+
+
 
 @main.route('/transaction/delete/<int:transaction_id>', methods=['POST'])
 @login_required
