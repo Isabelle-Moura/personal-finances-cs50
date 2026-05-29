@@ -74,10 +74,26 @@
                                 </div>
                             </div>
                             
-                            <small class="text-muted">
-                                Period: {{ report.budget.start_date.strftime('%Y-%m-%d') }} to {{ report.budget.end_date.strftime('%Y-%m-%d') }} 
+                            <small class="text-muted d-block mb-1">
+                                Period: {{ report.budget.start_date.strftime('%B %-d, %Y') }} to {{ report.budget.end_date.strftime('%B %-d, %Y') }}
+                                <br>
                                 (Remaining: <span class="{{ 'text-danger' if report.remaining < 0 else 'text-success' }}">$ {{ "%.2f"|format(report.remaining) }}</span>)
                             </small>
+
+                            <div class="mt-2 d-flex justify-content-end align-items-center gap-2">
+                                <a href="{{ url_for('main.edit_budget', budget_id=report.budget.id) }}" 
+                                   class="btn btn-sm btn-outline-primary d-inline-flex align-items-center justify-content-center" 
+                                   style="font-size: 0.75rem; height: 24px; padding: 0 8px;">
+                                    Edit
+                                </a>
+                                <form action="{{ url_for('main.delete_budget', budget_id=report.budget.id) }}" method="POST" style="display: inline; margin: 0; padding: 0;">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center justify-content-center" 
+                                            style="font-size: 0.75rem; height: 24px; padding: 0 8px;"
+                                            onclick="return confirm('Are you sure you want to delete this budget limit?');">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     {% endfor %}
                 {% else %}

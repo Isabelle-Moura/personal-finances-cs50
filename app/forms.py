@@ -3,6 +3,21 @@ from wtforms import DateField, StringField, PasswordField, SubmitField, SelectFi
 from wtforms.validators import DataRequired, Length, Email, EqualTo, NumberRange, ValidationError
 from app.models import User
 
+CATEGORY_CHOICES = [
+    ('Salary', 'Salary 💼'),
+    ('Investments', 'Investments 📈'),
+    ('Freelance', 'Freelance 💻'),
+    ('Food', 'Food 🍔'),
+    ('Rent', 'Rent 🏠'),
+    ('Utilities', 'Utilities ⚡'),
+    ('Transport', 'Transport 🚗'),
+    ('Entertainment', 'Entertainment 🍿'),
+    ('Shopping', 'Shopping 🛍️'),
+    ('Health', 'Health 🏥'),
+    ('Education', 'Education 📚'),
+    ('Other', 'Other ❓')
+]
+
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
     email = StringField('Email', validators=[DataRequired(), Email()])
@@ -33,11 +48,15 @@ class TransactionForm(FlaskForm):
     ])
     description = StringField('Description', validators=[Length(max=200)])
     type = SelectField('Type', choices=[('income', 'Income'), ('expense', 'Expense')], validators=[DataRequired()])
-    category = SelectField('Category', choices=[('Food', 'Food'), ('Rent', 'Rent'), ('Utilities', 'Utilities'), ('Other', 'Other')], validators=[DataRequired()])
+    
+    category = SelectField('Category', choices=CATEGORY_CHOICES, validators=[DataRequired()])
+    
     submit = SubmitField('Add Transaction')
 
+
 class BudgetForm(FlaskForm):
-    category = SelectField('Category', choices=[('Food', 'Food'), ('Rent', 'Rent'), ('Utilities', 'Utilities'), ('Other', 'Other')], validators=[DataRequired()])
+    category = SelectField('Category', choices=CATEGORY_CHOICES, validators=[DataRequired()])
+    
     amount = DecimalField('Budget Limit ($)', validators=[
         DataRequired(message="This field is required."), 
         NumberRange(min=0.01, message="The budget limit must be greater than zero.")

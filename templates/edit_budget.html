@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card p-4 shadow-sm border-0">
+                <h3 class="mb-3">Edit Budget Limit 🎯</h3>
+                <p class="text-muted">Modify the details for this spending category.</p>
+                <hr>
+                
+                <form method="POST" action="">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="form-group mb-2">
+                        {{ form.category.label(class="form-control-label") }}
+                        {{ form.category(class="form-select") }}
+                    </div>
+                    
+                    <div class="form-group mb-2">
+                        {{ form.amount.label(class="form-control-label") }}
+                        {{ form.amount(class="form-control") }}
+                        {% for error in form.amount.errors %}
+                            <div class="text-danger small mt-1">⚠️ {{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-group mb-2">
+                        {{ form.start_date.label(class="form-control-label") }}
+                        {{ form.start_date(class="form-control", type="date") }}
+                    </div>
+
+                    <div class="form-group mb-3">
+                        {{ form.end_date.label(class="form-control-label") }}
+                        {{ form.end_date(class="form-control", type="date") }}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('main.budgets') }}" class="btn btn-outline-secondary">Cancel</a>
+                        {{ form.submit(class="btn btn-success", value="Save Changes") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

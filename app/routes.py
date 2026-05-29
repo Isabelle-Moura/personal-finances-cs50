@@ -4,7 +4,6 @@ from app import db
 from app.models import Category, Transaction, User, Budget
 from flask_bcrypt import Bcrypt 
 from flask_login import login_user, logout_user, current_user, login_required
-from datetime import datetime
 
 bcrypt = Bcrypt() 
 
@@ -14,6 +13,7 @@ main = Blueprint('main', __name__)
 @main.route('/home')
 def home():
     return render_template('home.html', title='Home')
+
 
 
 @main.route('/register', methods=['GET', 'POST'])
@@ -68,11 +68,13 @@ def login():
     return render_template('login.html', title='Login', form=form)
 
 
+
 @main.route("/logout")
 def logout():
     logout_user() 
     flash('You have been logged out.', 'info')
     return redirect(url_for('main.home'))
+
 
 
 @main.route('/dashboard', methods=['GET'])
@@ -128,6 +130,7 @@ def dashboard():
                            alerts=critical_budgets) 
 
 
+
 @main.route('/budgets', methods=['GET', 'POST'])
 @login_required
 def budgets():
@@ -181,6 +184,63 @@ def budgets():
 
 
 
+@main.route('/budget/delete/<int:budget_id>', methods=['POST'])
+@login_required
+def delete_budget(budget_id):
+    budget = Budget.query.get_or_404(budget_id)
+    
+    if budget.user_id != current_user.id:
+        flash('Permission denied.', 'danger')
+        return redirect(url_for('main.budgets'))
+        
+    db.session.delete(budget)
+    db.session.commit()
+    flash('Budget limit deleted successfully!', 'success')
+    return redirect(url_for('main.budgets'))
+
+
+
+@main.route('/budget/edit/<int:budget_id>', methods=['GET', 'POST'])
+@login_required
+def edit_budget(budget_id):
+    budget = Budget.query.get_or_404(budget_id)
+    
+    if budget.user_id != current_user.id:
+        flash('Permission denied.', 'danger')
+        return redirect(url_for('main.budgets'))
+        
+    form = BudgetForm()
+    
+    if request.method == 'GET':
+        current_category = Category.query.get(budget.category_id)
+        if current_category:
+            form.category.data = current_category.name
+        form.amount.data = budget.amount
+        form.start_date.data = budget.start_date
+        form.end_date.data = budget.end_date
+    
+    if form.validate_on_submit():
+        category_name = form.category.data
+        category = Category.query.filter_by(name=category_name, user_id=current_user.id).first()
+        
+        if not category:
+            category = Category(name=category_name, type='expense', user_id=current_user.id)
+            db.session.add(category)
+            db.session.commit()
+            
+        budget.category_id = category.id
+        budget.amount = float(form.amount.data)
+        budget.start_date = form.start_date.data
+        budget.end_date = form.end_date.data
+        
+        db.session.commit()
+        flash('Budget limit updated successfully!', 'success')
+        return redirect(url_for('main.budgets'))
+        
+    return render_template('edit_budget.html', title='Edit Budget', form=form, budget=budget)
+
+
+
 @main.route('/transactions', methods=['GET', 'POST'])
 @login_required
 def transactions():
@@ -192,7 +252,12 @@ def transactions():
             return redirect(url_for('main.transactions'))
         
         category_name = form.category.data
-        category = Category.query.filter_by(name=category_name, user_id=current_user.id).first()
+
+        category = Category.query.filter_by(
+            name=category_name, 
+            type=form.type.data, 
+            user_id=current_user.id
+        ).first()
         
         if not category:
             category = Category(name=category_name, type=form.type.data, user_id=current_user.id)
