@@ -3,6 +3,7 @@ from wtforms import DateField, StringField, PasswordField, SubmitField, SelectFi
 from wtforms.validators import DataRequired, Length, Email, EqualTo, NumberRange, ValidationError
 from app.models import User
 
+
 CATEGORY_CHOICES = [
     ('Salary', 'Salary 💼'),
     ('Investments', 'Investments 📈'),
@@ -17,6 +18,7 @@ CATEGORY_CHOICES = [
     ('Education', 'Education 📚'),
     ('Other', 'Other ❓')
 ]
+
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
@@ -40,6 +42,7 @@ class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Login')
+
 
 class TransactionForm(FlaskForm):
     amount = DecimalField('Amount ($)', validators=[

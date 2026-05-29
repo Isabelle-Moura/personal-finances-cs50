@@ -236,8 +236,6 @@ def edit_budget(budget_id):
         db.session.commit()
         flash('Budget limit updated successfully!', 'success')
         return redirect(url_for('main.budgets'))
-        
-    return render_template('edit_budget.html', title='Edit Budget', form=form, budget=budget)
 
 
 
